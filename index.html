@@ -44,8 +44,11 @@
           <table>
             <thead>
               <tr>
+
                 <th>発行年</th>
                 <th>号数</th>
+=======
+
                 <th>コード</th>
                 <th>銘柄名</th>
                 <th>監視開始日</th>
@@ -101,8 +104,11 @@
             const row = document.createElement("tr");
 
             const cells = [
+
               item.issueYear || "-",
               item.issueNumber || "-",
+=======
+
               item.code || "-",
               item.name || "-",
               item.watchStart || "-",
@@ -115,7 +121,11 @@
 
             cells.forEach((value, index) => {
               const cell = document.createElement("td");
+
               if (index === 8) {
+=======
+              if (index === 6) {
+
                 cell.classList.add("status");
                 if (value === "監視中") {
                   cell.classList.add("active");
@@ -124,7 +134,11 @@
                 }
               }
 
+
               if (index === 9) {
+=======
+              if (index === 7) {
+
                 const numeric = parseFloat(String(value).replace(/[^0-9+-.]/g, ""));
                 if (!Number.isNaN(numeric)) {
                   if (numeric > 0) {
