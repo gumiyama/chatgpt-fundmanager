@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #0c1b33;
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --accent: #4ade80;
+  --accent-strong: #16a34a;
+  --text: #f8fafc;
+  --muted: #cbd5f5;
+  --negative: #f87171;
+  --neutral: #fbbf24;
+  --font: 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  background: radial-gradient(circle at top left, #172554, var(--bg));
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem 1.5rem 3rem;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.25));
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.hero .lead {
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  color: var(--muted);
+}
+
+.hero .cta {
+  display: inline-block;
+  padding: 0.9rem 2.6rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero .cta:hover,
+.hero .cta:focus {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(74, 222, 128, 0.35);
+}
+
+main {
+  padding: 0 1.5rem 4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: -2.5rem;
+  margin-bottom: 3rem;
+}
+
+.highlights article {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.highlights h2 {
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.metric {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin: 0.6rem 0;
+}
+
+.metric .metric-value {
+  font-size: 1em;
+  margin-left: 0;
+}
+
+.metric .metric-suffix {
+  font-size: 0.6em;
+  margin-left: 0.2em;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.watchlist h2,
+.about h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.25rem;
+}
+
+.issue-caption {
+  margin-bottom: 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.issue-caption a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 840px;
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 1rem 1.25rem;
+  text-align: left;
+}
+
+th {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  background: rgba(30, 64, 175, 0.45);
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(51, 65, 85, 0.35);
+}
+
+tbody tr:hover {
+  background: rgba(74, 222, 128, 0.12);
+}
+
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status.completed {
+  background: rgba(148, 163, 184, 0.25);
+  color: var(--muted);
+}
+
+.status.active {
+  background: rgba(74, 222, 128, 0.25);
+  color: var(--accent);
+}
+
+.positive {
+  color: var(--accent);
+}
+
+.negative {
+  color: var(--negative);
+}
+
+.table-message {
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.table-message.warning {
+  color: var(--neutral);
+}
+
+.table-message.error {
+  color: var(--negative);
+}
+
+.neutral {
+  color: var(--neutral);
+}
+
+.about {
+  margin-top: 4rem;
+  background: var(--card-bg);
+  border-radius: 18px;
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.about p {
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem 1rem 3rem;
+  color: rgba(148, 163, 184, 0.7);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 3.5rem 1.25rem 2.5rem;
+  }
+
+  .hero .lead {
+    font-size: 1rem;
+  }
+
+  .highlights {
+    margin-top: -2rem;
+  }
+
+  th,
+  td {
+    padding: 0.75rem 1rem;
+  }
+}
