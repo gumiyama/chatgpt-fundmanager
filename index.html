@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatGPT厳選銘柄ウォッチリスト</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <h1>ChatGPT厳選銘柄ウォッチリスト</h1>
+      <p class="lead">
+        ChatGPTが選出した銘柄のパフォーマンスを追跡し、
+        データに基づいた投資判断をサポートします。
+      </p>
+      <a class="cta" href="#watchlist">最新のウォッチリストを見る</a>
+    </header>
+
+    <main>
+      <section class="highlights">
+        <article>
+          <h2>勝率</h2>
+          <p class="metric">
+            <span class="metric-value" id="metric-win-rate">--</span>
+            <span class="metric-suffix">%</span>
+          </p>
+          <p class="description">損益率がプラスの銘柄比率</p>
+        </article>
+        <article>
+          <h2>平均リターン</h2>
+          <p class="metric">
+            <span class="metric-value" id="metric-average-return">--</span>
+            <span class="metric-suffix">%</span>
+          </p>
+          <p class="description">損益率の平均値（計測可能な銘柄）</p>
+        </article>
+        <article>
+          <h2>監視銘柄数</h2>
+          <p class="metric">
+            <span class="metric-value" id="metric-active-count">--</span>
+          </p>
+          <p class="description">現在監視中の銘柄数</p>
+        </article>
+      </section>
+
+      <section id="watchlist" class="watchlist">
+        <h2>ウォッチリスト</h2>
+        <p class="issue-caption">
+          創刊号（<a href="https://note.com/entry20210104/n/na1b72e0ff757" target="_blank" rel="noopener">source</a>）で紹介された銘柄を掲載予定です。
+        </p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>発行年</th>
+                <th>号数</th>
+                <th>コード</th>
+                <th>銘柄名</th>
+                <th>監視開始日</th>
+                <th>監視開始日株価</th>
+                <th>監視終了日</th>
+                <th>監視終了日株価</th>
+                <th>監視ステータス</th>
+                <th>損益率</th>
+              </tr>
+            </thead>
+            <tbody id="issue-table-body"></tbody>
+          </table>
+          <p id="issue-table-message" class="table-message">創刊号の銘柄データを読み込み中です…</p>
+        </div>
+      </section>
+
+      <section class="about">
+        <h2>どのように銘柄を選定しているのか</h2>
+        <p>
+          ファンダメンタルズ分析、センチメント分析、過去の株価パターンなど、複数の視点から総合的に評価し、
+          ChatGPTが推奨する銘柄を絞り込んでいます。定期的な見直しにより、常に鮮度の高いウォッチリストを提供します。
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <small>© 2024 ChatGPT Fund Manager</small>
+    </footer>
+    <script>
+      async function loadIssueData() {
+        const tableBody = document.getElementById("issue-table-body");
+        const message = document.getElementById("issue-table-message");
+
+        try {
+          const response = await fetch("data/issue-001.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("Failed to load issue data");
+          }
+
+          const payload = await response.json();
+          const stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
+
+          if (!stocks.length) {
+            message.textContent = "銘柄データが未登録です。note記事へのアクセス制限により自動取得に失敗しました。";
+            message.classList.add("warning");
+            return;
+          }
+
+          message.remove();
+
+          const fragment = document.createDocumentFragment();
+          const returns = [];
+
+          stocks.forEach((item) => {
+            const row = document.createElement("tr");
+
+            const priceStartValue = parsePrice(item.priceStart);
+            const priceEndValue = parsePrice(item.priceEnd);
+            const pnlValue =
+              Number.isFinite(priceStartValue) &&
+              Number.isFinite(priceEndValue) &&
+              priceStartValue !== 0
+                ? ((priceEndValue - priceStartValue) / priceStartValue) * 100
+                : null;
+
+            if (Number.isFinite(pnlValue)) {
+              returns.push(pnlValue);
+            }
+
+            const cells = [
+              item.issueYear || "-",
+              item.issueNumber || "-",
+              item.code || "-",
+              item.name || "-",
+              item.watchStart || "-",
+              formatCurrency(priceStartValue, item.priceStart),
+              item.watchEnd || "-",
+              formatCurrency(priceEndValue, item.priceEnd),
+              item.status || "-",
+              formatPercentage(pnlValue),
+            ];
+
+            cells.forEach((value, index) => {
+              const cell = document.createElement("td");
+              if (index === 8) {
+                cell.classList.add("status");
+                if (value === "監視中") {
+                  cell.classList.add("active");
+                } else if (value === "監視終了") {
+                  cell.classList.add("completed");
+                }
+              }
+
+              if (index === 9) {
+                const numeric = extractNumericPercentage(value);
+                if (Number.isFinite(numeric)) {
+                  if (numeric > 0) {
+                    cell.classList.add("positive");
+                  } else if (numeric < 0) {
+                    cell.classList.add("negative");
+                  } else {
+                    cell.classList.add("neutral");
+                  }
+                }
+              }
+
+              cell.textContent = value;
+              row.appendChild(cell);
+            });
+
+            fragment.appendChild(row);
+          });
+
+          tableBody.appendChild(fragment);
+
+          updateHighlights({
+            returns,
+            activeCount: stocks.filter((item) => {
+              const status = typeof item.status === "string" ? item.status.trim() : "";
+              return status === "監視中";
+            }).length,
+          });
+        } catch (error) {
+          console.error(error);
+          message.textContent = "データの取得に失敗しました。ネットワーク設定をご確認ください。";
+          message.classList.add("error");
+        }
+      }
+
+      function parsePrice(value) {
+        if (typeof value === "number") {
+          return Number.isFinite(value) ? value : null;
+        }
+
+        if (typeof value === "string" && value.trim().length) {
+          const numeric = Number(value.replace(/[^0-9+\-.]/g, ""));
+          return Number.isFinite(numeric) ? numeric : null;
+        }
+
+        return null;
+      }
+
+      function formatCurrency(numericValue, fallback) {
+        if (Number.isFinite(numericValue)) {
+          return `${numericValue.toLocaleString("ja-JP")}円`;
+        }
+
+        return fallback || "-";
+      }
+
+      function formatPercentage(value) {
+        if (!Number.isFinite(value)) {
+          return "-";
+        }
+
+        const rounded = Math.round(value * 10) / 10;
+        const normalized = Object.is(rounded, -0) ? 0 : rounded;
+        const sign = normalized > 0 ? "+" : normalized < 0 ? "" : "";
+        return `${sign}${normalized.toFixed(1)}%`;
+      }
+
+      function extractNumericPercentage(value) {
+        if (typeof value === "number") {
+          return value;
+        }
+
+        if (typeof value === "string") {
+          const numeric = Number(value.replace(/[^0-9+\-.]/g, ""));
+          return Number.isFinite(numeric) ? numeric : null;
+        }
+
+        return null;
+      }
+
+      function updateHighlights({ returns, activeCount }) {
+        const winRateEl = document.getElementById("metric-win-rate");
+        const avgReturnEl = document.getElementById("metric-average-return");
+        const activeCountEl = document.getElementById("metric-active-count");
+
+        const validReturns = Array.isArray(returns) ? returns.filter((value) => Number.isFinite(value)) : [];
+
+        const winCount = validReturns.filter((value) => value > 0).length;
+        const winRate = validReturns.length ? (winCount / validReturns.length) * 100 : null;
+        const averageReturn = validReturns.length
+          ? validReturns.reduce((sum, value) => sum + value, 0) / validReturns.length
+          : null;
+
+        if (winRateEl) {
+          if (winRate !== null) {
+            const rounded = Math.round(winRate * 10) / 10;
+            const normalized = Object.is(rounded, -0) ? 0 : rounded;
+            winRateEl.textContent = normalized.toFixed(1);
+          } else {
+            winRateEl.textContent = "--";
+          }
+        }
+
+        if (avgReturnEl) {
+          if (averageReturn !== null) {
+            const rounded = Math.round(averageReturn * 10) / 10;
+            const normalized = Object.is(rounded, -0) ? 0 : rounded;
+            const sign = normalized > 0 ? "+" : normalized < 0 ? "" : "";
+            avgReturnEl.textContent = `${sign}${normalized.toFixed(1)}`;
+          } else {
+            avgReturnEl.textContent = "--";
+          }
+        }
+
+        if (activeCountEl) {
+          activeCountEl.textContent = Number.isInteger(activeCount) ? activeCount : "--";
+        }
+      }
+
+      loadIssueData();
+    </script>
+  </body>
+</html>
