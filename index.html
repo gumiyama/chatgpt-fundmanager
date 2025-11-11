@@ -20,17 +20,25 @@
       <section class="highlights">
         <article>
           <h2>勝率</h2>
-          <p class="metric">68<span>%</span></p>
-          <p class="description">過去30日の推奨銘柄勝率</p>
+          <p class="metric">
+            <span class="metric-value" id="metric-win-rate">--</span>
+            <span class="metric-suffix">%</span>
+          </p>
+          <p class="description">損益率がプラスの銘柄比率</p>
         </article>
         <article>
           <h2>平均リターン</h2>
-          <p class="metric">+12.4<span>%</span></p>
-          <p class="description">損益率の平均値（監視終了銘柄）</p>
+          <p class="metric">
+            <span class="metric-value" id="metric-average-return">--</span>
+            <span class="metric-suffix">%</span>
+          </p>
+          <p class="description">損益率の平均値（計測可能な銘柄）</p>
         </article>
         <article>
           <h2>監視銘柄数</h2>
-          <p class="metric">12</p>
+          <p class="metric">
+            <span class="metric-value" id="metric-active-count">--</span>
+          </p>
           <p class="description">現在監視中の銘柄数</p>
         </article>
       </section>
@@ -44,11 +52,8 @@
           <table>
             <thead>
               <tr>
-
                 <th>発行年</th>
                 <th>号数</th>
-=======
-
                 <th>コード</th>
                 <th>銘柄名</th>
                 <th>監視開始日</th>
@@ -100,32 +105,40 @@
           message.remove();
 
           const fragment = document.createDocumentFragment();
+          const returns = [];
+
           stocks.forEach((item) => {
             const row = document.createElement("tr");
 
-            const cells = [
+            const priceStartValue = parsePrice(item.priceStart);
+            const priceEndValue = parsePrice(item.priceEnd);
+            const pnlValue =
+              Number.isFinite(priceStartValue) &&
+              Number.isFinite(priceEndValue) &&
+              priceStartValue !== 0
+                ? ((priceEndValue - priceStartValue) / priceStartValue) * 100
+                : null;
 
+            if (Number.isFinite(pnlValue)) {
+              returns.push(pnlValue);
+            }
+
+            const cells = [
               item.issueYear || "-",
               item.issueNumber || "-",
-=======
-
               item.code || "-",
               item.name || "-",
               item.watchStart || "-",
-              item.priceStart || "-",
+              formatCurrency(priceStartValue, item.priceStart),
               item.watchEnd || "-",
-              item.priceEnd || "-",
+              formatCurrency(priceEndValue, item.priceEnd),
               item.status || "-",
-              item.pnl || "-",
+              formatPercentage(pnlValue),
             ];
 
             cells.forEach((value, index) => {
               const cell = document.createElement("td");
-
               if (index === 8) {
-=======
-              if (index === 6) {
-
                 cell.classList.add("status");
                 if (value === "監視中") {
                   cell.classList.add("active");
@@ -134,13 +147,9 @@
                 }
               }
 
-
               if (index === 9) {
-=======
-              if (index === 7) {
-
-                const numeric = parseFloat(String(value).replace(/[^0-9+-.]/g, ""));
-                if (!Number.isNaN(numeric)) {
+                const numeric = extractNumericPercentage(value);
+                if (Number.isFinite(numeric)) {
                   if (numeric > 0) {
                     cell.classList.add("positive");
                   } else if (numeric < 0) {
@@ -159,10 +168,102 @@
           });
 
           tableBody.appendChild(fragment);
+
+          updateHighlights({
+            returns,
+            activeCount: stocks.filter((item) => {
+              const status = typeof item.status === "string" ? item.status.trim() : "";
+              return status === "監視中";
+            }).length,
+          });
         } catch (error) {
           console.error(error);
           message.textContent = "データの取得に失敗しました。ネットワーク設定をご確認ください。";
           message.classList.add("error");
+        }
+      }
+
+      function parsePrice(value) {
+        if (typeof value === "number") {
+          return Number.isFinite(value) ? value : null;
+        }
+
+        if (typeof value === "string" && value.trim().length) {
+          const numeric = Number(value.replace(/[^0-9+-.]/g, ""));
+          return Number.isFinite(numeric) ? numeric : null;
+        }
+
+        return null;
+      }
+
+      function formatCurrency(numericValue, fallback) {
+        if (Number.isFinite(numericValue)) {
+          return `${numericValue.toLocaleString("ja-JP")}円`;
+        }
+
+        return fallback || "-";
+      }
+
+      function formatPercentage(value) {
+        if (!Number.isFinite(value)) {
+          return "-";
+        }
+
+        const rounded = Math.round(value * 10) / 10;
+        const normalized = Object.is(rounded, -0) ? 0 : rounded;
+        const sign = normalized > 0 ? "+" : normalized < 0 ? "" : "";
+        return `${sign}${normalized.toFixed(1)}%`;
+      }
+
+      function extractNumericPercentage(value) {
+        if (typeof value === "number") {
+          return value;
+        }
+
+        if (typeof value === "string") {
+          const numeric = Number(value.replace(/[^0-9+-.]/g, ""));
+          return Number.isFinite(numeric) ? numeric : null;
+        }
+
+        return null;
+      }
+
+      function updateHighlights({ returns, activeCount }) {
+        const winRateEl = document.getElementById("metric-win-rate");
+        const avgReturnEl = document.getElementById("metric-average-return");
+        const activeCountEl = document.getElementById("metric-active-count");
+
+        const validReturns = Array.isArray(returns) ? returns.filter((value) => Number.isFinite(value)) : [];
+
+        const winCount = validReturns.filter((value) => value > 0).length;
+        const winRate = validReturns.length ? (winCount / validReturns.length) * 100 : null;
+        const averageReturn = validReturns.length
+          ? validReturns.reduce((sum, value) => sum + value, 0) / validReturns.length
+          : null;
+
+        if (winRateEl) {
+          if (winRate !== null) {
+            const rounded = Math.round(winRate * 10) / 10;
+            const normalized = Object.is(rounded, -0) ? 0 : rounded;
+            winRateEl.textContent = normalized.toFixed(1);
+          } else {
+            winRateEl.textContent = "--";
+          }
+        }
+
+        if (avgReturnEl) {
+          if (averageReturn !== null) {
+            const rounded = Math.round(averageReturn * 10) / 10;
+            const normalized = Object.is(rounded, -0) ? 0 : rounded;
+            const sign = normalized > 0 ? "+" : normalized < 0 ? "" : "";
+            avgReturnEl.textContent = `${sign}${normalized.toFixed(1)}`;
+          } else {
+            avgReturnEl.textContent = "--";
+          }
+        }
+
+        if (activeCountEl) {
+          activeCountEl.textContent = Number.isInteger(activeCount) ? activeCount : "--";
         }
       }
 

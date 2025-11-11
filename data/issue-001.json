@@ -1,7 +1,6 @@
 {
   "issue": "創刊号",
   "source": "https://note.com/entry20210104/n/na1b72e0ff757",
-
   "stocks": [
     {
       "issueYear": "2024年",
@@ -12,11 +11,7 @@
       "priceStart": "3,430円",
       "watchEnd": "2025/11/11",
       "priceEnd": "4,030円",
-      "status": "監視中",
-      "pnl": "+17.5%"
+      "status": "監視中"
     }
   ]
-=======
-  "stocks": []
-
 }
