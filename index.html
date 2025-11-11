@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatGPT厳選銘柄ウォッチリスト</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <h1>ChatGPT厳選銘柄ウォッチリスト</h1>
+      <p class="lead">
+        ChatGPTが選出した銘柄のパフォーマンスを追跡し、
+        データに基づいた投資判断をサポートします。
+      </p>
+      <a class="cta" href="#watchlist">最新のウォッチリストを見る</a>
+    </header>
+
+    <main>
+      <section class="highlights">
+        <article>
+          <h2>勝率</h2>
+          <p class="metric">68<span>%</span></p>
+          <p class="description">過去30日の推奨銘柄勝率</p>
+        </article>
+        <article>
+          <h2>平均リターン</h2>
+          <p class="metric">+12.4<span>%</span></p>
+          <p class="description">損益率の平均値（監視終了銘柄）</p>
+        </article>
+        <article>
+          <h2>監視銘柄数</h2>
+          <p class="metric">12</p>
+          <p class="description">現在監視中の銘柄数</p>
+        </article>
+      </section>
+
+      <section id="watchlist" class="watchlist">
+        <h2>ウォッチリスト</h2>
+        <p class="issue-caption">
+          創刊号（<a href="https://note.com/entry20210104/n/na1b72e0ff757" target="_blank" rel="noopener">source</a>）で紹介された銘柄を掲載予定です。
+        </p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>コード</th>
+                <th>銘柄名</th>
+                <th>監視開始日</th>
+                <th>監視開始日株価</th>
+                <th>監視終了日</th>
+                <th>監視終了日株価</th>
+                <th>監視ステータス</th>
+                <th>損益率</th>
+              </tr>
+            </thead>
+            <tbody id="issue-table-body"></tbody>
+          </table>
+          <p id="issue-table-message" class="table-message">創刊号の銘柄データを読み込み中です…</p>
+        </div>
+      </section>
+
+      <section class="about">
+        <h2>どのように銘柄を選定しているのか</h2>
+        <p>
+          ファンダメンタルズ分析、センチメント分析、過去の株価パターンなど、複数の視点から総合的に評価し、
+          ChatGPTが推奨する銘柄を絞り込んでいます。定期的な見直しにより、常に鮮度の高いウォッチリストを提供します。
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <small>© 2024 ChatGPT Fund Manager</small>
+    </footer>
+    <script>
+      async function loadIssueData() {
+        const tableBody = document.getElementById("issue-table-body");
+        const message = document.getElementById("issue-table-message");
+
+        try {
+          const response = await fetch("data/issue-001.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("Failed to load issue data");
+          }
+
+          const payload = await response.json();
+          const stocks = Array.isArray(payload.stocks) ? payload.stocks : [];
+
+          if (!stocks.length) {
+            message.textContent = "銘柄データが未登録です。note記事へのアクセス制限により自動取得に失敗しました。";
+            message.classList.add("warning");
+            return;
+          }
+
+          message.remove();
+
+          const fragment = document.createDocumentFragment();
+          stocks.forEach((item) => {
+            const row = document.createElement("tr");
+
+            const cells = [
+              item.code || "-",
+              item.name || "-",
+              item.watchStart || "-",
+              item.priceStart || "-",
+              item.watchEnd || "-",
+              item.priceEnd || "-",
+              item.status || "-",
+              item.pnl || "-",
+            ];
+
+            cells.forEach((value, index) => {
+              const cell = document.createElement("td");
+              if (index === 6) {
+                cell.classList.add("status");
+                if (value === "監視中") {
+                  cell.classList.add("active");
+                } else if (value === "監視終了") {
+                  cell.classList.add("completed");
+                }
+              }
+
+              if (index === 7) {
+                const numeric = parseFloat(String(value).replace(/[^0-9+-.]/g, ""));
+                if (!Number.isNaN(numeric)) {
+                  if (numeric > 0) {
+                    cell.classList.add("positive");
+                  } else if (numeric < 0) {
+                    cell.classList.add("negative");
+                  } else {
+                    cell.classList.add("neutral");
+                  }
+                }
+              }
+
+              cell.textContent = value;
+              row.appendChild(cell);
+            });
+
+            fragment.appendChild(row);
+          });
+
+          tableBody.appendChild(fragment);
+        } catch (error) {
+          console.error(error);
+          message.textContent = "データの取得に失敗しました。ネットワーク設定をご確認ください。";
+          message.classList.add("error");
+        }
+      }
+
+      loadIssueData();
+    </script>
+  </body>
+</html>
