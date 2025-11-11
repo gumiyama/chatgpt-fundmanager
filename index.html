@@ -189,7 +189,7 @@
         }
 
         if (typeof value === "string" && value.trim().length) {
-          const numeric = Number(value.replace(/[^0-9+-.]/g, ""));
+          const numeric = Number(value.replace(/[^0-9+\-.]/g, ""));
           return Number.isFinite(numeric) ? numeric : null;
         }
 
@@ -221,7 +221,7 @@
         }
 
         if (typeof value === "string") {
-          const numeric = Number(value.replace(/[^0-9+-.]/g, ""));
+          const numeric = Number(value.replace(/[^0-9+\-.]/g, ""));
           return Number.isFinite(numeric) ? numeric : null;
         }
 
