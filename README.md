@@ -1,0 +1,2 @@
+# chatgpt-fundmanager
+ChatGPTが選出した株がどれほど優れているのかを乗せるサイト
