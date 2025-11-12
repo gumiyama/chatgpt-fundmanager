@@ -151,6 +151,10 @@ td {
   text-align: left;
 }
 
+.status-cell {
+  text-align: center;
+}
+
 th {
   text-transform: uppercase;
   font-size: 0.75rem;
@@ -168,11 +172,14 @@ tbody tr:hover {
 }
 
 .status {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.25rem 0.8rem;
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
+  margin: 0 auto;
 }
 
 .status.completed {
