@@ -106,7 +106,8 @@
           message.remove();
 
           const fragment = document.createDocumentFragment();
-          const returns = [];
+          const completedReturns = [];
+          let activeCount = 0;
 
           stocks.forEach((item) => {
             const row = document.createElement("tr");
@@ -120,9 +121,7 @@
                 ? ((priceEndValue - priceStartValue) / priceStartValue) * 100
                 : null;
 
-            if (Number.isFinite(pnlValue)) {
-              returns.push(pnlValue);
-            }
+            const status = typeof item.status === "string" ? item.status.trim() : "";
 
             const cells = [
               item.issueYear || "-",
@@ -133,7 +132,7 @@
               formatCurrency(priceStartValue, item.priceStart),
               item.watchEnd || "-",
               formatCurrency(priceEndValue, item.priceEnd),
-              item.status || "-",
+              status || "-",
               formatPercentage(pnlValue),
             ];
 
@@ -173,17 +172,22 @@
               row.appendChild(cell);
             });
 
+            if (status === "監視中") {
+              activeCount += 1;
+            }
+
+            if (status === "監視終了" && Number.isFinite(pnlValue)) {
+              completedReturns.push(pnlValue);
+            }
+
             fragment.appendChild(row);
           });
 
           tableBody.appendChild(fragment);
 
           updateHighlights({
-            returns,
-            activeCount: stocks.filter((item) => {
-              const status = typeof item.status === "string" ? item.status.trim() : "";
-              return status === "監視中";
-            }).length,
+            returns: completedReturns,
+            activeCount,
           });
         } catch (error) {
           console.error(error);
