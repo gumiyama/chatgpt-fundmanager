@@ -23,6 +23,17 @@
       "watchEnd": "2025/06/11",
       "priceEnd": "1,431円",
       "status": "監視終了"
+    },
+    {
+      "issueYear": "2024年",
+      "issueNumber": "3号",
+      "code": "1743",
+      "name": "コーアツ工業",
+      "watchStart": "2024/01/15",
+      "priceStart": "1,123円",
+      "watchEnd": "2025/08/06",
+      "priceEnd": "1,840円",
+      "status": "監視終了"
     }
   ]
 }
