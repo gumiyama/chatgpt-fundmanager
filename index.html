@@ -8,6 +8,7 @@
   </head>
   <body>
     <header class="hero">
+      <p class="hero-eyebrow">AI Powered Market Insights</p>
       <h1>ChatGPT厳選銘柄ウォッチリスト</h1>
       <p class="lead">
         ChatGPTが選出した銘柄のパフォーマンスを追跡し、
@@ -139,12 +140,21 @@
             cells.forEach((value, index) => {
               const cell = document.createElement("td");
               if (index === 8) {
-                cell.classList.add("status");
+                cell.classList.add("status-cell");
+
+                const badge = document.createElement("span");
+                badge.classList.add("status");
+
                 if (value === "監視中") {
-                  cell.classList.add("active");
+                  badge.classList.add("active");
                 } else if (value === "監視終了") {
-                  cell.classList.add("completed");
+                  badge.classList.add("completed");
                 }
+
+                badge.textContent = value;
+                cell.appendChild(badge);
+              } else {
+                cell.textContent = value;
               }
 
               if (index === 9) {
@@ -160,7 +170,6 @@
                 }
               }
 
-              cell.textContent = value;
               row.appendChild(cell);
             });
 
