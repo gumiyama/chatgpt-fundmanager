@@ -45,6 +45,17 @@
       "watchEnd": "-",
       "priceEnd": "-",
       "status": "監視中"
+    },
+    {
+      "issueYear": "2024年",
+      "issueNumber": "2号",
+      "code": "1384",
+      "name": "ホクリヨウ",
+      "watchStart": "2024/01/05",
+      "priceStart": "1,043円",
+      "watchEnd": "2025/06/11",
+      "priceEnd": "1,431円",
+      "status": "監視終了"
     }
   ]
 }
