@@ -34,6 +34,17 @@
       "watchEnd": "2025/08/06",
       "priceEnd": "1,840円",
       "status": "監視終了"
+    },
+    {
+      "issueYear": "2024年",
+      "issueNumber": "4号",
+      "code": "3921",
+      "name": "ネオジャパン",
+      "watchStart": "2024/01/27",
+      "priceStart": "1,050円",
+      "watchEnd": "-",
+      "priceEnd": "-",
+      "status": "監視中"
     }
   ]
 }
