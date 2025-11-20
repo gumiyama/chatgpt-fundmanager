@@ -67,6 +67,17 @@
       "watchEnd": "2025/06/13",
       "priceEnd": "1,318円",
       "status": "監視終了"
+    },
+    {
+      "issueYear": "2024年",
+      "issueNumber": "第7号",
+      "code": "9275",
+      "name": "ナルミヤ・インターナショナル",
+      "watchStart": "2024/07/24",
+      "priceStart": "1,345円",
+      "watchEnd": "2025/06/27",
+      "priceEnd": "1,417円",
+      "status": "監視終了"
     }
   ]
 }
