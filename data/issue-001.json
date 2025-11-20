@@ -78,6 +78,17 @@
       "watchEnd": "2025/06/27",
       "priceEnd": "1,417円",
       "status": "監視終了"
+    },
+    {
+      "issueYear": "2024年",
+      "issueNumber": "第8号",
+      "code": "6824",
+      "name": "新コスモス電機",
+      "watchStart": "2024/08/22",
+      "priceStart": "2,390円",
+      "watchEnd": "2025/08/01",
+      "priceEnd": "2,686円",
+      "status": "監視終了"
     }
   ]
 }
