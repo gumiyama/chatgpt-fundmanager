@@ -242,6 +242,51 @@ main {
   text-decoration: underline;
 }
 
+.table-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.2rem;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 16px 28px rgba(8, 47, 73, 0.22);
+}
+
+.table-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  flex: 1 1 220px;
+}
+
+.table-controls select,
+.table-controls input {
+  appearance: none;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  min-width: 180px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.table-controls select:focus,
+.table-controls input:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.table-controls input::placeholder {
+  color: rgba(148, 163, 184, 0.7);
+}
+
 .table-wrapper {
   overflow-x: auto;
   overflow-y: hidden;
@@ -399,6 +444,21 @@ footer {
 
   .highlights {
     margin-top: -2.3rem;
+  }
+
+  .table-controls {
+    flex-direction: column;
+    padding: 0.9rem 1rem;
+  }
+
+  .table-controls label {
+    width: 100%;
+  }
+
+  .table-controls select,
+  .table-controls input {
+    width: 100%;
+    min-width: 0;
   }
 
   th,

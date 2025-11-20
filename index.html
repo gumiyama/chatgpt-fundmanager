@@ -49,6 +49,25 @@
         <p class="issue-caption">
           創刊号（<a href="https://note.com/entry20210104/n/na1b72e0ff757" target="_blank" rel="noopener">source</a>）で紹介された銘柄を掲載予定です。
         </p>
+        <div class="table-controls">
+          <label for="status-filter">
+            監視ステータス
+            <select id="status-filter">
+              <option value="all">すべて</option>
+              <option value="監視中">監視中のみ</option>
+              <option value="監視終了">監視終了のみ</option>
+            </select>
+          </label>
+          <label for="code-filter">
+            銘柄コード・名称
+            <input
+              type="search"
+              id="code-filter"
+              placeholder="例: 1234 や 企業名で検索"
+              autocomplete="off"
+            />
+          </label>
+        </div>
         <div class="table-wrapper">
           <table>
             <thead>
@@ -84,9 +103,19 @@
       <small>© 2024 ChatGPT Fund Manager</small>
     </footer>
     <script>
+      const state = {
+        stocks: [],
+        filters: {
+          status: "all",
+          query: "",
+        },
+      };
+
       async function loadIssueData() {
         const tableBody = document.getElementById("issue-table-body");
         const message = document.getElementById("issue-table-message");
+        const statusFilter = document.getElementById("status-filter");
+        const codeFilter = document.getElementById("code-filter");
 
         try {
           const response = await fetch("data/issue-001.json", { cache: "no-store" });
@@ -99,96 +128,178 @@
 
           if (!stocks.length) {
             message.textContent = "銘柄データが未登録です。note記事へのアクセス制限により自動取得に失敗しました。";
-            message.classList.add("warning");
+            message.className = "table-message warning";
             return;
           }
 
-          message.remove();
+          state.stocks = stocks;
+          state.filters.status = statusFilter ? statusFilter.value : "all";
+          state.filters.query = codeFilter ? codeFilter.value.trim().toLowerCase() : "";
 
-          const fragment = document.createDocumentFragment();
-          const returns = [];
+          const triggerUpdate = () => {
+            updateView(tableBody, message);
+          };
 
-          stocks.forEach((item) => {
-            const row = document.createElement("tr");
-
-            const priceStartValue = parsePrice(item.priceStart);
-            const priceEndValue = parsePrice(item.priceEnd);
-            const pnlValue =
-              Number.isFinite(priceStartValue) &&
-              Number.isFinite(priceEndValue) &&
-              priceStartValue !== 0
-                ? ((priceEndValue - priceStartValue) / priceStartValue) * 100
-                : null;
-
-            if (Number.isFinite(pnlValue)) {
-              returns.push(pnlValue);
-            }
-
-            const cells = [
-              item.issueYear || "-",
-              item.issueNumber || "-",
-              item.code || "-",
-              item.name || "-",
-              item.watchStart || "-",
-              formatCurrency(priceStartValue, item.priceStart),
-              item.watchEnd || "-",
-              formatCurrency(priceEndValue, item.priceEnd),
-              item.status || "-",
-              formatPercentage(pnlValue),
-            ];
-
-            cells.forEach((value, index) => {
-              const cell = document.createElement("td");
-              if (index === 8) {
-                cell.classList.add("status-cell");
-
-                const badge = document.createElement("span");
-                badge.classList.add("status");
-
-                if (value === "監視中") {
-                  badge.classList.add("active");
-                } else if (value === "監視終了") {
-                  badge.classList.add("completed");
-                }
-
-                badge.textContent = value;
-                cell.appendChild(badge);
-              } else {
-                cell.textContent = value;
-              }
-
-              if (index === 9) {
-                const numeric = extractNumericPercentage(value);
-                if (Number.isFinite(numeric)) {
-                  if (numeric > 0) {
-                    cell.classList.add("positive");
-                  } else if (numeric < 0) {
-                    cell.classList.add("negative");
-                  } else {
-                    cell.classList.add("neutral");
-                  }
-                }
-              }
-
-              row.appendChild(cell);
+          if (statusFilter) {
+            statusFilter.addEventListener("change", (event) => {
+              state.filters.status = event.target.value;
+              triggerUpdate();
             });
+          }
 
-            fragment.appendChild(row);
-          });
+          if (codeFilter) {
+            codeFilter.addEventListener("input", (event) => {
+              state.filters.query = event.target.value.trim().toLowerCase();
+              triggerUpdate();
+            });
+          }
 
-          tableBody.appendChild(fragment);
-
-          updateHighlights({
-            returns,
-            activeCount: stocks.filter((item) => {
-              const status = typeof item.status === "string" ? item.status.trim() : "";
-              return status === "監視中";
-            }).length,
-          });
+          updateView(tableBody, message);
         } catch (error) {
           console.error(error);
           message.textContent = "データの取得に失敗しました。ネットワーク設定をご確認ください。";
-          message.classList.add("error");
+          message.className = "table-message error";
+        }
+      }
+
+      function updateView(tableBody, message) {
+        const filteredStocks = getFilteredStocks();
+        const metrics = populateTable(tableBody, filteredStocks);
+        toggleTableMessage(message, filteredStocks.length > 0);
+        updateHighlights(metrics);
+      }
+
+      function getFilteredStocks() {
+        const statusFilter = state.filters.status;
+        const query = state.filters.query;
+
+        return state.stocks.filter((item) => {
+          const status = typeof item.status === "string" ? item.status.trim() : "";
+
+          if (statusFilter !== "all" && status !== statusFilter) {
+            return false;
+          }
+
+          if (!query) {
+            return true;
+          }
+
+          const codeText =
+            item.code !== undefined && item.code !== null
+              ? String(item.code).toLowerCase()
+              : "";
+          const nameText = typeof item.name === "string" ? item.name.toLowerCase() : "";
+
+          return codeText.includes(query) || nameText.includes(query);
+        });
+      }
+
+      function populateTable(tableBody, stocks) {
+        if (!tableBody) {
+          return { returns: [], activeCount: 0 };
+        }
+
+        tableBody.textContent = "";
+
+        const fragment = document.createDocumentFragment();
+        const completedReturns = [];
+        let activeCount = 0;
+
+        stocks.forEach((item) => {
+          const row = document.createElement("tr");
+
+          const priceStartValue = parsePrice(item.priceStart);
+          const priceEndValue = parsePrice(item.priceEnd);
+          const pnlValue =
+            Number.isFinite(priceStartValue) &&
+            Number.isFinite(priceEndValue) &&
+            priceStartValue !== 0
+              ? ((priceEndValue - priceStartValue) / priceStartValue) * 100
+              : null;
+
+          const status = typeof item.status === "string" ? item.status.trim() : "";
+
+          const cells = [
+            item.issueYear || "-",
+            item.issueNumber || "-",
+            item.code || "-",
+            item.name || "-",
+            item.watchStart || "-",
+            formatCurrency(priceStartValue, item.priceStart),
+            item.watchEnd || "-",
+            formatCurrency(priceEndValue, item.priceEnd),
+            status || "-",
+            formatPercentage(pnlValue),
+          ];
+
+          cells.forEach((value, index) => {
+            const cell = document.createElement("td");
+            if (index === 8) {
+              cell.classList.add("status-cell");
+
+              const badge = document.createElement("span");
+              badge.classList.add("status");
+
+              if (value === "監視中") {
+                badge.classList.add("active");
+              } else if (value === "監視終了") {
+                badge.classList.add("completed");
+              }
+
+              badge.textContent = value;
+              cell.appendChild(badge);
+            } else {
+              cell.textContent = value;
+            }
+
+            if (index === 9) {
+              const numeric = extractNumericPercentage(value);
+              if (Number.isFinite(numeric)) {
+                if (numeric > 0) {
+                  cell.classList.add("positive");
+                } else if (numeric < 0) {
+                  cell.classList.add("negative");
+                } else {
+                  cell.classList.add("neutral");
+                }
+              }
+            }
+
+            row.appendChild(cell);
+          });
+
+          if (status === "監視中") {
+            activeCount += 1;
+          }
+
+          if (status === "監視終了" && Number.isFinite(pnlValue)) {
+            completedReturns.push(pnlValue);
+          }
+
+          fragment.appendChild(row);
+        });
+
+        tableBody.appendChild(fragment);
+
+        return {
+          returns: completedReturns,
+          activeCount,
+        };
+      }
+
+      function toggleTableMessage(message, hasRows) {
+        if (!message) {
+          return;
+        }
+
+        if (hasRows) {
+          message.textContent = "";
+          message.style.display = "none";
+          message.className = "table-message";
+        } else {
+          message.textContent = "条件に一致する銘柄がありません。";
+          message.style.display = "";
+          message.className = "table-message";
         }
       }
 
