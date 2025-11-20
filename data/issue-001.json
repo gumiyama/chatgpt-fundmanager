@@ -56,6 +56,17 @@
       "watchEnd": "2025/11/20",
       "priceEnd": "8,730円",
       "status": "監視終了"
+    },
+    {
+      "issueYear": "2024年",
+      "issueNumber": "第6号",
+      "code": "1736",
+      "name": "オーテック",
+      "watchStart": "2024/04/12",
+      "priceStart": "1,267円",
+      "watchEnd": "2025/06/13",
+      "priceEnd": "1,318円",
+      "status": "監視終了"
     }
   ]
 }
