@@ -325,6 +325,15 @@ td {
   text-align: left;
 }
 
+.stock-name {
+  font-weight: 700;
+}
+
+.stock-code {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .status-cell {
   text-align: center;
 }
