@@ -14,7 +14,12 @@
         ChatGPTが選出した銘柄のパフォーマンスを追跡し、
         データに基づいた投資判断をサポートします。
       </p>
-      <a class="cta" href="#watchlist">最新のウォッチリストを見る</a>
+      <div class="cta-group">
+        <a class="cta" href="#watchlist">最新のウォッチリストを見る</a>
+        <a class="cta ghost" href="https://note.com/entry20210104/n/n00e96f5c1f27" target="_blank" rel="noopener noreferrer">
+          メンバーシップで銘柄をチェック
+        </a>
+      </div>
     </header>
 
     <main>
@@ -135,9 +140,10 @@
             const issueLabel = payload.issue ? `${payload.issue}の銘柄データ` : "";
             const sourceLink =
               payload.source && typeof payload.source === "string"
-                ? ` | 出典: ${payload.source}`
+                ? `<a href="${payload.source}" target="_blank" rel="noopener noreferrer">出典: note</a>`
                 : "";
-            issueCaption.textContent = `${issueLabel}${sourceLink}`;
+            const membershipLink = `<a class="inline-cta" href="https://note.com/entry20210104/n/n00e96f5c1f27" target="_blank" rel="noopener noreferrer">メンバーシップで全銘柄と更新速報を見る</a>`;
+            issueCaption.innerHTML = [issueLabel, sourceLink, membershipLink].filter(Boolean).join(" ｜ ");
           }
 
           state.stocks = stocks;
