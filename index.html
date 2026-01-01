@@ -20,6 +20,13 @@
           メンバーシップで銘柄をチェック
         </a>
       </div>
+      <div class="position-strip" aria-live="polite">
+        <div class="position-strip__header">
+          <span class="dot"></span>
+          <span>ポジション速報</span>
+        </div>
+        <div class="position-strip__list" id="position-strip"></div>
+      </div>
     </header>
 
     <main>
@@ -181,6 +188,7 @@
         const metrics = populateTable(tableBody, filteredStocks);
         toggleTableMessage(message, filteredStocks.length > 0);
         updateHighlights(metrics);
+        updatePositionStrip(state.stocks);
       }
 
       function getFilteredStocks() {
@@ -461,6 +469,96 @@
         if (activeCountEl) {
           activeCountEl.textContent = Number.isInteger(activeCount) ? activeCount : "--";
         }
+      }
+
+      function updatePositionStrip(stocks) {
+        const strip = document.getElementById("position-strip");
+        if (!strip) return;
+
+        strip.textContent = "";
+
+        const snapshots = (Array.isArray(stocks) ? stocks : [])
+          .map((item) => buildSnapshot(item))
+          .filter(Boolean)
+          .sort((a, b) => {
+            if (a.statusPriority !== b.statusPriority) {
+              return a.statusPriority - b.statusPriority;
+            }
+            return b.order - a.order;
+          })
+          .slice(0, 4);
+
+        snapshots.forEach((snapshot) => {
+          const card = document.createElement("div");
+          card.className = "position-chip";
+
+          const name = document.createElement("div");
+          name.className = "position-chip__name";
+          name.textContent = snapshot.name;
+
+          const code = document.createElement("div");
+          code.className = "position-chip__code";
+          code.textContent = snapshot.code;
+
+          const status = document.createElement("span");
+          status.className = "position-chip__status";
+          status.textContent = snapshot.status;
+          status.dataset.state = snapshot.status === "監視終了" ? "done" : "active";
+
+          const perf = document.createElement("div");
+          perf.className = "position-chip__perf";
+          perf.textContent = snapshot.perf;
+          perf.dataset.trend = snapshot.trend;
+
+          const price = document.createElement("div");
+          price.className = "position-chip__price";
+          price.textContent = snapshot.priceLabel;
+
+          card.appendChild(name);
+          card.appendChild(code);
+          card.appendChild(status);
+          card.appendChild(perf);
+          card.appendChild(price);
+
+          strip.appendChild(card);
+        });
+      }
+
+      function buildSnapshot(item) {
+        const priceStart = parsePrice(item.priceStart);
+        const priceEnd = parsePrice(item.priceEnd);
+        const currentPrice = parsePrice(item.currentPrice);
+        const comparison = Number.isFinite(priceEnd)
+          ? priceEnd
+          : Number.isFinite(currentPrice)
+          ? currentPrice
+          : null;
+        const diff = Number.isFinite(priceStart) && Number.isFinite(comparison) ? comparison - priceStart : null;
+        const pct = Number.isFinite(priceStart) && Number.isFinite(comparison) && priceStart !== 0 ? (diff / priceStart) * 100 : null;
+
+        const status = typeof item.status === "string" ? item.status.trim() : "-";
+        const trend = Number.isFinite(pct) ? (pct > 0 ? "up" : pct < 0 ? "down" : "flat") : "none";
+
+        return {
+          name: item.name || "-",
+          code: item.code ? `(${item.code})` : "",
+          status,
+          perf: Number.isFinite(pct) ? `${pct > 0 ? "+" : ""}${(Math.round(pct * 10) / 10).toFixed(1)}%` : "--",
+          priceLabel:
+            Number.isFinite(comparison) && Number.isFinite(priceStart)
+              ? `${formatCurrency(comparison, item.priceEnd ?? item.currentPrice)} / ${formatCurrency(priceStart, item.priceStart)}`
+              : formatCurrency(comparison, item.priceEnd ?? item.currentPrice) || "--",
+          trend,
+          statusPriority: status === "監視中" ? 0 : 1,
+          order: parseDateValue(item.watchStart),
+        };
+      }
+
+      function parseDateValue(dateText) {
+        if (typeof dateText !== "string") return 0;
+        const normalized = dateText.replace(/[年月]/g, "/").replace(/日/g, "");
+        const time = Date.parse(normalized);
+        return Number.isFinite(time) ? time : 0;
       }
 
       loadIssueData();
