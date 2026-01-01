@@ -14,7 +14,19 @@
         ChatGPTが選出した銘柄のパフォーマンスを追跡し、
         データに基づいた投資判断をサポートします。
       </p>
-      <a class="cta" href="#watchlist">最新のウォッチリストを見る</a>
+      <div class="cta-group">
+        <a class="cta" href="#watchlist">最新のウォッチリストを見る</a>
+        <a class="cta ghost" href="https://note.com/entry20210104/n/n00e96f5c1f27" target="_blank" rel="noopener noreferrer">
+          メンバーシップで銘柄をチェック
+        </a>
+      </div>
+      <div class="position-strip" aria-live="polite">
+        <div class="position-strip__header">
+          <span class="dot"></span>
+          <span>ポジション速報</span>
+        </div>
+        <div class="position-strip__list" id="position-strip"></div>
+      </div>
     </header>
 
     <main>
@@ -71,16 +83,15 @@
           <table>
             <thead>
               <tr>
-                <th>発行年</th>
                 <th>号数</th>
-                <th>コード</th>
-                <th>銘柄名</th>
+                <th>銘柄</th>
+                <th>ステータス</th>
                 <th>監視開始日</th>
-                <th>監視開始日株価</th>
+                <th>監視開始時株価（終値）</th>
                 <th>監視終了日</th>
-                <th>監視終了日株価</th>
-                <th>監視ステータス</th>
-                <th>損益率</th>
+                <th>監視終了時株価（終値／イベント）</th>
+                <th>株価差</th>
+                <th>値上がり率</th>
               </tr>
             </thead>
             <tbody id="issue-table-body"></tbody>
@@ -96,12 +107,12 @@
           ChatGPTが推奨する銘柄を絞り込んでいます。定期的な見直しにより、常に鮮度の高いウォッチリストを提供します。
         </p>
       </section>
-    </main>
+  </main>
 
-    <footer>
-      <small>© 2024 ChatGPT Fund Manager</small>
-    </footer>
-    <script>
+  <footer>
+    <small>© 2024 ChatGPT Fund Manager</small>
+  </footer>
+  <script>
       const state = {
         stocks: [],
         filters: {
@@ -115,6 +126,7 @@
         const message = document.getElementById("issue-table-message");
         const statusFilter = document.getElementById("status-filter");
         const codeFilter = document.getElementById("code-filter");
+        const issueCaption = document.querySelector(".issue-caption");
 
         try {
           const response = await fetch("data/issue-001.json", { cache: "no-store" });
@@ -129,6 +141,16 @@
             message.textContent = "銘柄データが未登録です。note記事へのアクセス制限により自動取得に失敗しました。";
             message.className = "table-message warning";
             return;
+          }
+
+          if (issueCaption) {
+            const issueLabel = payload.issue ? `${payload.issue}の銘柄データ` : "";
+            const sourceLink =
+              payload.source && typeof payload.source === "string"
+                ? `<a href="${payload.source}" target="_blank" rel="noopener noreferrer">出典: note</a>`
+                : "";
+            const membershipLink = `<a class="inline-cta" href="https://note.com/entry20210104/n/n00e96f5c1f27" target="_blank" rel="noopener noreferrer">メンバーシップで全銘柄と更新速報を見る</a>`;
+            issueCaption.innerHTML = [issueLabel, sourceLink, membershipLink].filter(Boolean).join(" ｜ ");
           }
 
           state.stocks = stocks;
@@ -166,6 +188,7 @@
         const metrics = populateTable(tableBody, filteredStocks);
         toggleTableMessage(message, filteredStocks.length > 0);
         updateHighlights(metrics);
+        updatePositionStrip(state.stocks);
       }
 
       function getFilteredStocks() {
@@ -209,31 +232,52 @@
 
           const priceStartValue = parsePrice(item.priceStart);
           const priceEndValue = parsePrice(item.priceEnd);
+          const currentPriceValue = parsePrice(item.currentPrice);
+          const comparisonValue = Number.isFinite(priceEndValue)
+            ? priceEndValue
+            : Number.isFinite(currentPriceValue)
+            ? currentPriceValue
+            : null;
+          const valueChange =
+            Number.isFinite(priceStartValue) && Number.isFinite(comparisonValue)
+              ? comparisonValue - priceStartValue
+              : null;
           const pnlValue =
             Number.isFinite(priceStartValue) &&
-            Number.isFinite(priceEndValue) &&
+            Number.isFinite(comparisonValue) &&
             priceStartValue !== 0
-              ? ((priceEndValue - priceStartValue) / priceStartValue) * 100
+              ? (valueChange / priceStartValue) * 100
               : null;
 
           const status = typeof item.status === "string" ? item.status.trim() : "";
+          const priceEndForDisplay = item.priceEnd ?? item.currentPrice ?? "-";
 
           const cells = [
-            item.issueYear || "-",
             item.issueNumber || "-",
-            item.code || "-",
-            item.name || "-",
+            { type: "stock", name: item.name, code: item.code },
+            status || "-",
             item.watchStart || "-",
             formatCurrency(priceStartValue, item.priceStart),
             item.watchEnd || "-",
-            formatCurrency(priceEndValue, item.priceEnd),
-            status || "-",
+            formatCurrency(comparisonValue, priceEndForDisplay),
+            formatDifference(valueChange),
             formatPercentage(pnlValue),
           ];
 
           cells.forEach((value, index) => {
             const cell = document.createElement("td");
-            if (index === 8) {
+            if (index === 1 && value && typeof value === "object" && value.type === "stock") {
+              const name = document.createElement("div");
+              name.classList.add("stock-name");
+              name.textContent = value.name || "-";
+
+              const code = document.createElement("div");
+              code.classList.add("stock-code");
+              code.textContent = value.code ? `(${value.code})` : "";
+
+              cell.appendChild(name);
+              cell.appendChild(code);
+            } else if (index === 2) {
               cell.classList.add("status-cell");
 
               const badge = document.createElement("span");
@@ -251,7 +295,20 @@
               cell.textContent = value;
             }
 
-            if (index === 9) {
+            if (index === 7) {
+              const numeric = parsePrice(value);
+              if (Number.isFinite(numeric)) {
+                if (numeric > 0) {
+                  cell.classList.add("positive");
+                } else if (numeric < 0) {
+                  cell.classList.add("negative");
+                } else {
+                  cell.classList.add("neutral");
+                }
+              }
+            }
+
+            if (index === 8) {
               const numeric = extractNumericPercentage(value);
               if (Number.isFinite(numeric)) {
                 if (numeric > 0) {
@@ -308,7 +365,11 @@
         }
 
         if (typeof value === "string" && value.trim().length) {
-          const numeric = Number(value.replace(/[^0-9+\-.]/g, ""));
+          const cleaned = value.replace(/[^0-9+\-.]/g, "");
+          if (!cleaned.trim()) {
+            return null;
+          }
+          const numeric = Number(cleaned);
           return Number.isFinite(numeric) ? numeric : null;
         }
 
@@ -316,11 +377,24 @@
       }
 
       function formatCurrency(numericValue, fallback) {
+        const fallbackIsString = typeof fallback === "string";
+        const hasContext =
+          fallbackIsString &&
+          /[^\d,.\s円+-]/.test(fallback);
+
+        if (fallbackIsString && hasContext) {
+          return fallback;
+        }
+
         if (Number.isFinite(numericValue)) {
           return `${numericValue.toLocaleString("ja-JP")}円`;
         }
 
-        return fallback || "-";
+        if (fallbackIsString) {
+          return fallback;
+        }
+
+        return "-";
       }
 
       function formatPercentage(value) {
@@ -332,6 +406,17 @@
         const normalized = Object.is(rounded, -0) ? 0 : rounded;
         const sign = normalized > 0 ? "+" : normalized < 0 ? "" : "";
         return `${sign}${normalized.toFixed(1)}%`;
+      }
+
+      function formatDifference(value) {
+        if (!Number.isFinite(value)) {
+          return "-";
+        }
+
+        const rounded = Math.round(value);
+        const sign = rounded > 0 ? "+" : rounded < 0 ? "" : "";
+        const normalized = Object.is(rounded, -0) ? 0 : rounded;
+        return `${sign}${normalized.toLocaleString("ja-JP")}円`;
       }
 
       function extractNumericPercentage(value) {
@@ -384,6 +469,96 @@
         if (activeCountEl) {
           activeCountEl.textContent = Number.isInteger(activeCount) ? activeCount : "--";
         }
+      }
+
+      function updatePositionStrip(stocks) {
+        const strip = document.getElementById("position-strip");
+        if (!strip) return;
+
+        strip.textContent = "";
+
+        const snapshots = (Array.isArray(stocks) ? stocks : [])
+          .map((item) => buildSnapshot(item))
+          .filter(Boolean)
+          .sort((a, b) => {
+            if (a.statusPriority !== b.statusPriority) {
+              return a.statusPriority - b.statusPriority;
+            }
+            return b.order - a.order;
+          })
+          .slice(0, 4);
+
+        snapshots.forEach((snapshot) => {
+          const card = document.createElement("div");
+          card.className = "position-chip";
+
+          const name = document.createElement("div");
+          name.className = "position-chip__name";
+          name.textContent = snapshot.name;
+
+          const code = document.createElement("div");
+          code.className = "position-chip__code";
+          code.textContent = snapshot.code;
+
+          const status = document.createElement("span");
+          status.className = "position-chip__status";
+          status.textContent = snapshot.status;
+          status.dataset.state = snapshot.status === "監視終了" ? "done" : "active";
+
+          const perf = document.createElement("div");
+          perf.className = "position-chip__perf";
+          perf.textContent = snapshot.perf;
+          perf.dataset.trend = snapshot.trend;
+
+          const price = document.createElement("div");
+          price.className = "position-chip__price";
+          price.textContent = snapshot.priceLabel;
+
+          card.appendChild(name);
+          card.appendChild(code);
+          card.appendChild(status);
+          card.appendChild(perf);
+          card.appendChild(price);
+
+          strip.appendChild(card);
+        });
+      }
+
+      function buildSnapshot(item) {
+        const priceStart = parsePrice(item.priceStart);
+        const priceEnd = parsePrice(item.priceEnd);
+        const currentPrice = parsePrice(item.currentPrice);
+        const comparison = Number.isFinite(priceEnd)
+          ? priceEnd
+          : Number.isFinite(currentPrice)
+          ? currentPrice
+          : null;
+        const diff = Number.isFinite(priceStart) && Number.isFinite(comparison) ? comparison - priceStart : null;
+        const pct = Number.isFinite(priceStart) && Number.isFinite(comparison) && priceStart !== 0 ? (diff / priceStart) * 100 : null;
+
+        const status = typeof item.status === "string" ? item.status.trim() : "-";
+        const trend = Number.isFinite(pct) ? (pct > 0 ? "up" : pct < 0 ? "down" : "flat") : "none";
+
+        return {
+          name: item.name || "-",
+          code: item.code ? `(${item.code})` : "",
+          status,
+          perf: Number.isFinite(pct) ? `${pct > 0 ? "+" : ""}${(Math.round(pct * 10) / 10).toFixed(1)}%` : "--",
+          priceLabel:
+            Number.isFinite(comparison) && Number.isFinite(priceStart)
+              ? `${formatCurrency(comparison, item.priceEnd ?? item.currentPrice)} / ${formatCurrency(priceStart, item.priceStart)}`
+              : formatCurrency(comparison, item.priceEnd ?? item.currentPrice) || "--",
+          trend,
+          statusPriority: status === "監視中" ? 0 : 1,
+          order: parseDateValue(item.watchStart),
+        };
+      }
+
+      function parseDateValue(dateText) {
+        if (typeof dateText !== "string") return 0;
+        const normalized = dateText.replace(/[年月]/g, "/").replace(/日/g, "");
+        const time = Date.parse(normalized);
+        return Number.isFinite(time) ? time : 0;
       }
 
       loadIssueData();
