@@ -365,11 +365,11 @@
         }
 
         if (typeof value === "string" && value.trim().length) {
-          const cleaned = value.replace(/[^0-9+\-.]/g, "");
-          if (!cleaned.trim()) {
+          const match = value.match(/[+-]?\d[\d,]*(?:\.\d+)?/);
+          if (!match) {
             return null;
           }
-          const numeric = Number(cleaned);
+          const numeric = Number(match[0].replace(/,/g, ""));
           return Number.isFinite(numeric) ? numeric : null;
         }
 
