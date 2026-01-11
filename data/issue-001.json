@@ -1,9 +1,9 @@
 {
-  "issue": "創刊号〜第12号",
+  "issue": "創刊号（2024年）〜第10号（2025年）",
   "source": "https://note.com/entry20210104/n/n00e96f5c1f27",
   "stocks": [
     {
-      "issueNumber": "創刊号",
+      "issueNumber": "創刊号（2024年）",
       "code": "4746",
       "name": "東計電算",
       "watchStart": "2024年1月5日",
@@ -13,9 +13,9 @@
       "status": "監視中"
     },
     {
-      "issueNumber": "第2号",
+      "issueNumber": "第2号（2024年）",
       "code": "1384",
-      "name": "ホクリヨウ",
+      "name": "ホクリョウ",
       "watchStart": "2024年1月5日",
       "priceStart": "1,043円",
       "watchEnd": "2025年6月11日",
@@ -23,7 +23,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第3号",
+      "issueNumber": "第3号（2024年）",
       "code": "1743",
       "name": "コーアツ工業",
       "watchStart": "2024年1月16日",
@@ -33,7 +33,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第4号",
+      "issueNumber": "第4号（2024年）",
       "code": "3921",
       "name": "ネオジャパン",
       "watchStart": "2024年1月26日",
@@ -43,7 +43,7 @@
       "status": "監視中"
     },
     {
-      "issueNumber": "第5号",
+      "issueNumber": "第5号（2024年）",
       "code": "6772",
       "name": "東京コスモス電機",
       "watchStart": "2024年3月20日",
@@ -53,7 +53,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第6号",
+      "issueNumber": "第6号（2024年）",
       "code": "1736",
       "name": "オーテック",
       "watchStart": "2024年4月12日",
@@ -63,7 +63,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第7号",
+      "issueNumber": "第7号（2024年）",
       "code": "9275",
       "name": "ナルミヤ・インターナショナル",
       "watchStart": "2024年7月24日",
@@ -73,7 +73,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第8号",
+      "issueNumber": "第8号（2024年）",
       "code": "6824",
       "name": "新コスモス電機",
       "watchStart": "2024年8月22日",
@@ -83,7 +83,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第9号",
+      "issueNumber": "第9号（2024年）",
       "code": "5273",
       "name": "三谷セキサン",
       "watchStart": "2024年9月4日",
@@ -93,7 +93,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第10号",
+      "issueNumber": "第10号（2024年）",
       "code": "4624",
       "name": "イサム塗料",
       "watchStart": "2024年10月7日",
@@ -103,7 +103,7 @@
       "status": "監視中"
     },
     {
-      "issueNumber": "第11号",
+      "issueNumber": "第11号（2024年）",
       "code": "4171",
       "name": "グローバルインフォメーション",
       "watchStart": "2024年11月18日",
@@ -113,7 +113,7 @@
       "status": "監視終了"
     },
     {
-      "issueNumber": "第12号",
+      "issueNumber": "第12号（2024年）",
       "code": "7414",
       "name": "小野建",
       "watchStart": "2024年12月6日",
@@ -121,6 +121,116 @@
       "watchEnd": "—",
       "priceEnd": "—",
       "currentPrice": "1,404円",
+      "status": "監視中"
+    },
+    {
+      "issueNumber": "号数振り忘れ（2025年）",
+      "code": "7804",
+      "name": "ビーアンドピー",
+      "watchStart": "2025年1月10日",
+      "priceStart": "1,817円",
+      "watchEnd": "2025年7月18日",
+      "priceEnd": "2,254円",
+      "status": "監視終了"
+    },
+    {
+      "issueNumber": "第1号（2025年）",
+      "code": "6258",
+      "name": "平田機工",
+      "watchStart": "2025年1月7日",
+      "priceStart": "1,803円",
+      "watchEnd": "2025年7月9日",
+      "priceEnd": "2,021円",
+      "status": "監視終了"
+    },
+    {
+      "issueNumber": "第2号（2025年）",
+      "code": "3449",
+      "name": "テクノフレックス",
+      "watchStart": "2025年1月22日",
+      "priceStart": "1,095円",
+      "watchEnd": "2025年7月18日",
+      "priceEnd": "1,386円",
+      "status": "監視終了"
+    },
+    {
+      "issueNumber": "第3号（2025年）",
+      "code": "4012",
+      "name": "アクシス",
+      "watchStart": "2025年2月7日",
+      "priceStart": "1,531円",
+      "watchEnd": "—",
+      "priceEnd": "—",
+      "status": "監視中"
+    },
+    {
+      "issueNumber": "第4号（2025年）",
+      "code": "8157",
+      "name": "都築電気",
+      "watchStart": "2025年2月14日",
+      "priceStart": "2,489円",
+      "watchEnd": "2025年7月5日",
+      "priceEnd": "2,808円（休場のため直近営業日＝2025年7月4日終値）",
+      "status": "監視終了"
+    },
+    {
+      "issueNumber": "第5号（2025年）",
+      "code": "6419",
+      "name": "マースグループホールディングス",
+      "watchStart": "2025年3月3日",
+      "priceStart": "3,185円",
+      "watchEnd": "—",
+      "priceEnd": "—",
+      "status": "監視中"
+    },
+    {
+      "issueNumber": "第6号（2025年）",
+      "code": "7444",
+      "name": "ハリマ共和物産",
+      "watchStart": "2025年3月18日",
+      "priceStart": "1,970円",
+      "watchEnd": "—",
+      "priceEnd": "—",
+      "status": "監視中"
+    },
+    {
+      "issueNumber": "第7号（2025年）",
+      "code": "1938",
+      "name": "日本リーテック",
+      "watchStart": "2025年3月26日",
+      "priceStart": "1,607円",
+      "watchEnd": "2025年11月20日",
+      "priceEnd": "2,065円",
+      "status": "監視終了"
+    },
+    {
+      "issueNumber": "第8号（2025年）",
+      "code": "4231",
+      "name": "タイガースポリマー",
+      "watchStart": "2025年4月4日",
+      "priceStart": "651円",
+      "watchEnd": "2025年12月26日",
+      "priceEnd": "982円",
+      "status": "監視終了"
+    },
+    {
+      "issueNumber": "第9号（2025年）",
+      "code": "5280",
+      "name": "ヨシコン",
+      "watchStart": "2025年4月14日",
+      "priceStart": "1,601円",
+      "watchEnd": "2025年9月16日",
+      "priceEnd": "2,536円",
+      "status": "監視終了"
+    },
+    {
+      "issueNumber": "第10号（2025年）",
+      "code": "9686",
+      "name": "東洋テック",
+      "watchStart": "2025年4月25日",
+      "priceStart": "1,337円",
+      "watchEnd": "—",
+      "priceEnd": "—",
       "status": "監視中"
     }
   ]

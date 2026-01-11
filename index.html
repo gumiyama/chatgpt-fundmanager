@@ -20,13 +20,6 @@
           メンバーシップで銘柄をチェック
         </a>
       </div>
-      <div class="position-strip" aria-live="polite">
-        <div class="position-strip__header">
-          <span class="dot"></span>
-          <span>ポジション速報</span>
-        </div>
-        <div class="position-strip__list" id="position-strip"></div>
-      </div>
     </header>
 
     <main>
@@ -98,6 +91,14 @@
           </table>
           <p id="issue-table-message" class="table-message">創刊号の銘柄データを読み込み中です…</p>
         </div>
+      </section>
+
+      <section class="position-strip" aria-live="polite">
+        <div class="position-strip__header">
+          <span class="dot"></span>
+          <span>ポジション速報</span>
+        </div>
+        <div class="position-strip__list" id="position-strip"></div>
       </section>
 
       <section class="about">
@@ -365,11 +366,11 @@
         }
 
         if (typeof value === "string" && value.trim().length) {
-          const cleaned = value.replace(/[^0-9+\-.]/g, "");
-          if (!cleaned.trim()) {
+          const match = value.match(/[+-]?\d[\d,]*(?:\.\d+)?/);
+          if (!match) {
             return null;
           }
-          const numeric = Number(cleaned);
+          const numeric = Number(match[0].replace(/,/g, ""));
           return Number.isFinite(numeric) ? numeric : null;
         }
 
